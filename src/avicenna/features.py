@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import List, Set, Dict, Optional, Any
 import re
 from abc import ABC, abstractmethod
@@ -8,6 +9,8 @@ from fuzzingbook.Grammars import is_nonterminal, Grammar, reachable_nonterminals
 from isla.language import DerivationTree
 
 from avicenna.oracle import OracleResult
+
+import traceback
 
 
 class Feature(ABC):
@@ -69,7 +72,7 @@ class ExistenceFeature(Feature):
 
     @property
     def type(self):
-        return int
+        return bool
 
     def evaluate(self, subtree: DerivationTree) -> int:
         current_node, _ = subtree
@@ -94,7 +97,7 @@ class DerivationFeature(Feature):
 
     @property
     def type(self):
-        return int
+        return bool
 
     def evaluate(self, subtree: DerivationTree) -> int:
         current_node, children = subtree
@@ -273,8 +276,20 @@ class FeatureVector:
         else:
             self.features[feature] = value
 
+    def remove_features(self, features) -> bool:
+        try:
+            if isinstance(features, Iterable):
+                for f in features: 
+                    del self.features[f]
+            elif type(features) is Feature:
+                del self.features[features]
+            return True
+        except Exception: 
+            traceback.print_exc()
+
     def get_features(self) -> Dict[Feature, Any]:
         return self.features
+    
 
     def __repr__(self):
         return f"{self.test_input}: {self.features}"
