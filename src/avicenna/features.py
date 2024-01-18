@@ -221,6 +221,7 @@ class LengthFeature(Feature):
     def default_value(self):
         return 0
 
+    @property
     def type(self):
         return int
 
